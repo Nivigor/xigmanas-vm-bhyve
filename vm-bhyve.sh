@@ -2,12 +2,14 @@
 # filename:     vm-bhyve.sh
 # author:       nivigor
 # date:         2023-04-24
+# date:         2023-04-29	Add UEFI support
 # purpose:      Install vm-bhyve on XigmaNAS 13 (embedded version).
 #
 #----------------------- Set variables ------------------------------------------------------------------
 DIR=`dirname $0`;
 CA_ROOT_NSSFILE="ca_root_nss-*"
 VMFILE="vm-bhyve-*"
+EDK2FILE="edk2-bhyve-*"
 #----------------------- Set Errors ---------------------------------------------------------------------
 _msg() { case $@ in
   0) echo "The script will exit now."; exit 0 ;;
@@ -29,6 +31,21 @@ FILE=${VMFILE}
 if [ ! -e ${DIR}/${FILE} ]; then pkg fetch -y vm-bhyve;
   cp `find /var/cache/pkg/ -name ${FILE} -not -name "*~*"` ${DIR} || _msg 1; fi
 if [ -f ${DIR}/${FILE} ]; then pkg add ${DIR}/${FILE} || _msg 2; rm /var/cache/pkg/*; fi
+#----------------------- Download and decompress edk2-bhyve files if needed --------------------------------
+FILE=${EDK2FILE}
+if [ ! -d ${DIR}/usr/local/share/edk2-bhyve ]; then
+  if [ ! -e ${DIR}/${FILE} ]; then pkg fetch -y edk2-bhyve;
+    cp `find /var/cache/pkg/ -name ${FILE} -not -name "*~*"` ${DIR} || _msg 1; fi
+  if [ -f ${DIR}/${FILE} ]; then tar xzf ${DIR}/${FILE} || _msg 2};
+    rm -R ${DIR}/usr/local/share/licenses; rm -R ${DIR}/usr/local/share/uefi-firmware;
+    rm ${DIR}/+*; rm /var/cache/pkg/*; fi
+  if [ ! -d ${DIR}/usr/local/share/edk2-bhyve ]; then _msg 4; fi
+fi
+#----------------------- Create symlinks ----------------------------------------------------------------
+mkdir -p /usr/local/share/uefi-firmware;
+for i in `ls $DIR/usr/local/share/edk2-bhyve/`
+  do if [ ! -e /usr/local/share/uefi-firmware/${i} ]; then
+    ln -s ${DIR}/usr/local/share/edk2-bhyve/$i /usr/local/share/uefi-firmware; fi; done
 #----------------------- Start vm ------------------------------------------------------------------
 service vm start
 _msg 3 ; exit 0;
