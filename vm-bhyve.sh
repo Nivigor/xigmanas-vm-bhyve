@@ -4,6 +4,8 @@
 # date:         2023-04-24	Initial
 # date:         2023-04-29	Add UEFI support
 # date:         2023-05-22	Refactoring, add column
+# date:         2023-11-30	FreeBSD bug workaround.
+#               ZfS volume with volmode=dev may not appear in dev/zvol until reboot
 # purpose:      Install vm-bhyve on XigmaNAS 13 (embedded version).
 #
 #----------------------- Set variables ------------------------------------------------------------------
@@ -23,11 +25,15 @@ cd $DIR;
 PKG="ca_root_nss"
 if [ ! -e ${DIR}/All/${PKG}-*.pkg ]; then pkg fetch -o ${DIR} -y ${PKG} || _msg 1; fi
 if [ -f ${DIR}/All/${PKG}-*.pkg ]; then pkg add `ls ${DIR}/All/${PKG}-*.pkg` || _msg 2; fi
-#----------------------- Download vm-bhyve if needed and install -------------------------------------
+#----------------------- Download vm-bhyve if needed and install -----------------------------------------
 PKG="vm-bhyve"
 if [ ! -e ${DIR}/All/${PKG}-*.pkg ]; then pkg fetch -o ${DIR} -y ${PKG} || _msg 1; fi
 if [ -f ${DIR}/All/${PKG}-*.pkg ]; then pkg add `ls ${DIR}/All/${PKG}-*.pkg` || _msg 2; fi
-#----------------------- Download and decompress edk2-bhyve files if needed --------------------------------
+#----------------------- FreeBSD bug workaround ----------------------------------------------------------
+PKG="/usr/local/lib/vm-bhyve/vm-zfs"
+mv ${PKG} ${PKG}.bak
+sed 's/volmode=dev/volmode=geom/' ${PKG}.bak > ${PKG}
+#----------------------- Download and decompress edk2-bhyve files if needed ------------------------------
 PKG="edk2-bhyve"
 if [ ! -d ${DIR}/usr/local/share/edk2-bhyve ]; then
   if [ ! -e ${DIR}/All/${PKG}-*.pkg ]; then pkg fetch -o ${DIR} -y ${PKG} || _msg 1; fi
