@@ -5,6 +5,7 @@
 # date:         2023-04-29	Add UEFI support
 # date:         2023-05-22	Refactoring, add column
 # date:         2023-11-30	FreeBSD bug workaround.
+# date:         2026-02-23  Add Hashed dir for pkgs.
 #               ZfS volume with volmode=dev may not appear in dev/zvol until reboot
 # purpose:      Install vm-bhyve on XigmaNAS 13 (embedded version).
 #
@@ -23,12 +24,12 @@ if [ ! `echo $0 |cut -c1-5` = "/mnt/" ]; then _msg 4 ; fi
 cd $DIR;
 #----------------------- Download ca_root_nss if needed and install -------------------------------------
 PKG="ca_root_nss"
-if [ ! -e ${DIR}/All/${PKG}-*.pkg ]; then pkg fetch -o ${DIR} -y ${PKG} || _msg 1; fi
-if [ -f ${DIR}/All/${PKG}-*.pkg ]; then pkg add `ls ${DIR}/All/${PKG}-*.pkg` || _msg 2; fi
+if [ ! -e ${DIR}/All/Hashed/${PKG}-*.pkg ]; then pkg fetch -o ${DIR} -y ${PKG} || _msg 1; fi
+if [ -f ${DIR}/All/Hashed/${PKG}-*.pkg ]; then pkg add `ls ${DIR}/All/Hashed/${PKG}-*.pkg` || _msg 2; fi
 #----------------------- Download vm-bhyve if needed and install -----------------------------------------
 PKG="vm-bhyve"
-if [ ! -e ${DIR}/All/${PKG}-*.pkg ]; then pkg fetch -o ${DIR} -y ${PKG} || _msg 1; fi
-if [ -f ${DIR}/All/${PKG}-*.pkg ]; then pkg add `ls ${DIR}/All/${PKG}-*.pkg` || _msg 2; fi
+if [ ! -e ${DIR}/All/Hashed/${PKG}-*.pkg ]; then pkg fetch -o ${DIR} -y ${PKG} || _msg 1; fi
+if [ -f ${DIR}/All/Hashed/${PKG}-*.pkg ]; then pkg add `ls ${DIR}/All/Hashed/${PKG}-*.pkg` || _msg 2; fi
 #----------------------- FreeBSD bug workaround ----------------------------------------------------------
 PKG="/usr/local/lib/vm-bhyve/vm-zfs"
 mv ${PKG} ${PKG}.bak
@@ -36,8 +37,8 @@ sed 's/volmode=dev/volmode=geom/' ${PKG}.bak > ${PKG}
 #----------------------- Download and decompress edk2-bhyve files if needed ------------------------------
 PKG="edk2-bhyve"
 if [ ! -d ${DIR}/usr/local/share/edk2-bhyve ]; then
-  if [ ! -e ${DIR}/All/${PKG}-*.pkg ]; then pkg fetch -o ${DIR} -y ${PKG} || _msg 1; fi
-  if [ -f ${DIR}/All/${PKG}-*.pkg ]; then tar xzf ${DIR}/All/${PKG}-*.pkg || _msg 2;
+  if [ ! -e ${DIR}/All/Hashed/${PKG}-*.pkg ]; then pkg fetch -o ${DIR} -y ${PKG} || _msg 1; fi
+  if [ -f ${DIR}/All/Hashed/${PKG}-*.pkg ]; then tar xzf ${DIR}/All/Hashed/${PKG}-*.pkg || _msg 2;
     rm -R ${DIR}/usr/local/share/licenses; rm -R ${DIR}/usr/local/share/uefi-firmware;
     rm ${DIR}/+*; fi
   if [ ! -d ${DIR}/usr/local/share/edk2-bhyve ]; then _msg 4; fi
