@@ -7,7 +7,8 @@
 # date:         2023-11-30	FreeBSD bug workaround.
 #               ZfS volume with volmode=dev may not appear in dev/zvol until reboot
 # date:         2026-02-04  Updated for XigmaNAS 13.3.0.5
-# purpose:      Install vm-bhyve on XigmaNAS 13 (embedded version).
+# date:         2026-03-28  Updated for XigmaNAS 14.3.0.5, no ca_root_nss
+# purpose:      Install vm-bhyve on XigmaNAS 14 (embedded version).
 #
 #----------------------- Set variables ------------------------------------------------------------------
 DIR=`dirname $0`;
@@ -23,10 +24,6 @@ esac ; exit 0; }
 #----------------------- Check for full path ------------------------------------------------------------
 if [ ! `echo $0 |cut -c1-5` = "/mnt/" ]; then _msg 4 ; fi
 cd $DIR;
-#----------------------- Download ca_root_nss if needed and install -------------------------------------
-PKG="ca_root_nss"
-if [ ! -e ${DIR}/${All}/${PKG}-*.pkg ]; then pkg fetch -o ${DIR} -y ${PKG} || _msg 1; fi
-if [ -f ${DIR}/${All}/${PKG}-*.pkg ]; then pkg add `ls ${DIR}/${All}/${PKG}-*.pkg` || _msg 2; fi
 #----------------------- Download vm-bhyve if needed and install -----------------------------------------
 PKG="vm-bhyve"
 if [ ! -e ${DIR}/${All}/${PKG}-*.pkg ]; then pkg fetch -o ${DIR} -y ${PKG} || _msg 1; fi

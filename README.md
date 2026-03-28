@@ -8,7 +8,5 @@
 6. You can add this script to WebGUI: Advanced: Command Scripts as a PostInit command (see 5).
 7. To run vm-bhyve from shell type 'vm'.
 
-vm-bhyve requires system version 12.0.4+.
-Option uefi_vars doesn't work in FreeBSD 13.1, version 13.2+ is required.
-Script tested in XigmaNAS 13.1.0.5.9790 embedded version.
+Script tested in XigmaNAS 14.3.0.5.10566 embedded version.
 FreeBSD, Linux and Windows VM's is ok.
